@@ -5,7 +5,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   commands :pkgin => "pkgin"
 
-  has_feature :installable, :uninstallable
+  has_feature :installable, :uninstallable, :upgradeable
 
   def self.parse(package, force_status=nil)
 
