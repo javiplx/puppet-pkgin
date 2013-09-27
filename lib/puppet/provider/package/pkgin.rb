@@ -48,7 +48,11 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
       matching_package = properties if properties && resource[:name] == properties[:name]
     end
 
-    matching_package
+    if matching_package.length > 1
+      warning( "Multiple instances matching #{resource[:name]} : #{matching_package}" )
+    end
+
+    matching_package.first
   end
 
   def install
