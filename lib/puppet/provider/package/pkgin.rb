@@ -26,6 +26,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
         :ensure   => ensure_status,
         :provider => :pkgin
       }
+    else
+      err "Something didn't match the expected regexp at #{package}"
     end
   end
 
