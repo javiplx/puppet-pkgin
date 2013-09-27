@@ -43,6 +43,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
     matching_package = nil
     packages.each do |package|
+      break if package.empty?
       properties = self.class.parse(package)
       matching_package = properties if properties && resource[:name] == properties[:name]
     end
