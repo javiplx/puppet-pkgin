@@ -41,7 +41,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     # Remove the last three lines of help text.
     packages.slice!(-3, 3)
 
-    matching_package = nil
+    matching_package = []
     packages.select{ |pkg| pkg.start_with?("#{resource[:name]}") }.each do |package|
       properties = self.class.parse(package)
       matching_package = properties if properties && resource[:name] == properties[:name]
