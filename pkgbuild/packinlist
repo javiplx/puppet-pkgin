@@ -1,4 +1,4 @@
-@name is-puppet
+@name is-puppet-1.0
 puppet/provider/package/pkgin.rb
 solaris/lib/puppet/type/zone.rb
 solaris/lib/puppet/provider/service/smf.rb
