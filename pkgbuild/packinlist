@@ -7,9 +7,11 @@
 @group puppet
 @mode 544
 
+@cwd .
 @pkgdir pkgin/lib/puppet/provider
 pkgin/lib/puppet/provider/package/pkgin.rb
 
+@cwd pkgin/payload
 @pkgdir solaris/lib/puppet/type
 solaris/lib/puppet/type/zone.rb
 @pkgdir solaris/lib/puppet/provider
