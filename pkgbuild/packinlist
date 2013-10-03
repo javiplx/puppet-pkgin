@@ -1,4 +1,4 @@
-@name is-puppet-1.0
+@name is-puppet
 @display is-puppet
 
 @pkgdep ruby19-puppet
@@ -7,7 +7,8 @@
 @group puppet
 @mode 544
 
-puppet/provider/package/pkgin.rb
+@pkgdir pkgin/lib/puppet/provider
+pkgin/lib/puppet/provider/package/pkgin.rb
 
 @pkgdir solaris/lib/puppet/type
 solaris/lib/puppet/type/zone.rb
