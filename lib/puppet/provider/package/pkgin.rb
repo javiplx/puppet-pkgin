@@ -9,6 +9,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   has_feature :installable, :uninstallable, :upgradeable
 
+  defaultfor :solarisflavour => :smartos
+
   def self.parse_pkgin_line(package, force_status=nil)
 
     # e.g.
