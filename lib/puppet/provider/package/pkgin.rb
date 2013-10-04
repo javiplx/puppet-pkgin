@@ -26,6 +26,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
       {
         :name     => name,
         :ensure   => ensure_status,
+        :status   => status,
         :provider => :pkgin
       }
     end
