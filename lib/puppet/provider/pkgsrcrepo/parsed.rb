@@ -12,4 +12,12 @@ Puppet::Type.type(:pkgsrcrepo).provide(:parsed, :parent => Puppet::Provider::Par
 
   record_line :parsed , :fields => %w{url}
 
+  commands :pkgin => "pkgin"
+
+  def flush
+    super
+    # -f seems required when repositories.conf changes
+    pkgin("-yf", :update)
+  end
+
 end
