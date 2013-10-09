@@ -50,9 +50,6 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def query
     packages = pkgin(:search, resource[:name]).split("\n")
 
-    # Remove the last three lines of help text.
-    packages.slice!(-3, 3)
-
     matching_package = []
     packages.select{ |pkg| pkg.start_with?("#{resource[:name]}") }.each do |package|
       properties = self.class.parse(package)
