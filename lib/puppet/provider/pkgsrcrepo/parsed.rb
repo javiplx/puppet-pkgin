@@ -21,7 +21,7 @@ Puppet::Type.type(:pkgsrcrepo).provide(:parsed, :parent => Puppet::Provider::Par
 
   def flush
     super
-    pkgin("-yf", :update)
+    pkgin("-f", :update)
   end
 
 end
