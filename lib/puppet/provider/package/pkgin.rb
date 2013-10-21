@@ -29,6 +29,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
         :name     => name,
         :ensure   => ensure_status,
         :status   => status,
+        :version  => version,
         :provider => :pkgin
       }
     end
@@ -36,7 +37,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   def self.prefetch(packages)
     super
-    pkgin("-y", :update)
+    pkgin("-yf", :update)
   end
 
   def self.instances
@@ -49,15 +50,10 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     packages = pkgin(:search, resource[:name]).split("\n")
 
     # Remove the last three lines of help text.
-    packages.slice!(-3, 3)
+    packages.slice!(-4, 4)
 
-    matching_package = nil
-    packages.detect do |package|
-      properties = self.class.parse_pkgin_line(package)
-      matching_package = properties if properties && resource[:name] == properties[:name]
-    end
-
-    matching_package
+    pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
+    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) } if pkglist
   end
 
   def install
@@ -70,15 +66,10 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   def latest
     package = self.query
-    if not package
-        return true
-    end
-    if package[:status] == '<'
-      notice  "Upgrading #{package[:name]} to #{package[:version]}"
-      pkgin("-y", :install, package[:name])
-    else
-      true
-    end
+    return nil if not package
+    notice  "Upgrading #{package[:name]} to #{package[:version]}"
+    pkgin("-y", :install, package[:name])
+    package.update( { :ensure => :present } )
   end
 
 end

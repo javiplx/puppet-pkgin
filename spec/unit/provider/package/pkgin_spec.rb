@@ -60,7 +60,7 @@ describe provider_class do
     end
   end
 
-  describe "#query" do
+  describe "#latest" do
     before do
       provider_class.stub(:pkgin).with(:search, "vim").and_return(pkgin_search_output)
     end
@@ -70,11 +70,8 @@ describe provider_class do
         "vim-7.2.446 =        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns a hash stating the package is present" do
-        result = subject.query
-        result[:ensure].should == :present
-        result[:name].should == "vim"
-        result[:provider].should == :pkgin
+      it "returns nil" do
+        subject.latest.should be_nil
       end
     end
 
@@ -84,7 +81,8 @@ describe provider_class do
       end
 
       it "returns a hash stating the package is present" do
-        result = subject.query
+        provider_class.stub(:pkgin).with("-y", :install, "vim")
+        result = subject.latest
         result[:ensure].should == :present
         result[:name].should == "vim"
         result[:provider].should == :pkgin
@@ -96,11 +94,8 @@ describe provider_class do
         "vim-7.2.446 >        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns a hash stating the package is present" do
-        result = subject.query
-        result[:ensure].should == :present
-        result[:name].should == "vim"
-        result[:provider].should == :pkgin
+      it "returns nil" do
+        subject.latest.should be_nil
       end
     end
 
@@ -110,10 +105,38 @@ describe provider_class do
       end
 
       it "returns a hash stating the package is present" do
-        result = subject.query
-        result[:ensure].should == :absent
+        provider_class.stub(:pkgin).with("-y", :install, "vim")
+        result = subject.latest
+        result[:ensure].should == :present
         result[:name].should == "vim"
         result[:provider].should == :pkgin
+      end
+    end
+
+    context "when multiple candidates do exists" do
+      let(:pkgin_search_output) do
+        <<-SEARCH
+vim-7.1 >            Vim editor (vi clone) without GUI
+vim-share-7.1 >      Data files for the vim editor (vi clone)
+vim-7.2.446 =        Vim editor (vi clone) without GUI
+vim-share-7.2.446 =  Data files for the vim editor (vi clone)
+vim-7.3 <            Vim editor (vi clone) without GUI
+vim-share-7.3 <      Data files for the vim editor (vi clone)
+
+=: package is installed and up-to-date
+<: package is installed but newer version is available
+>: installed package has a greater version than available package
+SEARCH
+      end
+
+      it "returns a hash with the upgraded package" do
+        provider_class.stub(:pkgin).with(:search, "vim").and_return(pkgin_search_output)
+        provider_class.stub(:pkgin).with("-y", :install, "vim")
+        subject.latest.should == { :name => "vim" ,
+                                   :ensure => :present ,
+                                   :status => "<" ,
+                                   :version => "7.3" ,
+                                   :provider => :pkgin }
       end
     end
 
@@ -123,7 +146,7 @@ describe provider_class do
       end
 
       it "returns nil" do
-        subject.query.should be_nil
+        subject.latest.should be_nil
       end
     end
   end
