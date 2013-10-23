@@ -39,11 +39,12 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def query
     packages = pkgin(:search, resource[:name]).split("\n")
 
+    raise Puppet::Error, "No candidate for package #{resource[:name]}" if packages.length == 1
+
     # Remove the last three lines of help text.
     packages.slice!(-4, 4)
 
     pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
-    raise Puppet::Error, "No candidate for package #{resource[:name]}" if not pkglist.any?
     pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) }.merge( :ensure => :absent )
   end
 
