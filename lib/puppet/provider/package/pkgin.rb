@@ -72,4 +72,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     package.update( { :ensure => :present } )
   end
 
+  def update
+    install
+  end
+
 end
