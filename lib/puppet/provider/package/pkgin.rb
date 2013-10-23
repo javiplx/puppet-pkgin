@@ -43,7 +43,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     packages.slice!(-4, 4)
 
     pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
-    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) }.merge( :ensure => :absent ) if pkglist
+    raise Puppet::Error, "No candidate for package #{resource[:name]}" if not pkglist.any?
+    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) }.merge( :ensure => :absent )
   end
 
   def install
