@@ -35,17 +35,27 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     end
   end
 
+  # packages : list of packages for the current provider declared on manifest
   def self.prefetch(packages)
+    # it is unclear if we should call the parent method here. The work done
+    #    there seems redundant, at least if pkgin is default provider.
     super
     pkgin("-yf", :update)
   end
 
+  # called in every run to collect packages present in the system
+  # under 'apply', it is actually called from within the parent prefetch
   def self.instances
     pkgin(:list).split("\n").map do |package|
       new(parse_pkgin_line(package, :present))
     end
   end
 
+  # called for every resource in manifest not present in instances
+  # it is not defined wether this should query local or remote packages
+  # returned hash is stored on @property_hash, or '{:ensure=>:absent}' if nil
+  # or false is returnedm, but in any case install/update is executed depending
+  # on the value of the initial ensure attribute
   def query
     packages = pkgin(:search, resource[:name]).split("\n")
 
@@ -64,6 +74,10 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     pkgin("-y", :remove, resource[:name])
   end
 
+  # latest seems to be invoked only when the resource is on instances
+  #    and ensure is set to latest
+  # if nil/false is returned, latest is called again, but in neither
+  #    case update is automatically invoked
   def latest
     package = self.query
     return nil if not package
