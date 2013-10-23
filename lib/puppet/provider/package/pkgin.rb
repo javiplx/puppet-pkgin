@@ -39,7 +39,14 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def query
     packages = pkgin(:search, resource[:name]).split("\n")
 
-    raise Puppet::Error, "No candidate for package #{resource[:name]}" if packages.length == 1
+    if packages.length == 1
+      if @resource[:ensure] == :absent
+        notice "declared as absent but unavailable #{@resource.file}:#{resource.line}"
+        return {}
+      else
+        @resource.fail "No candidate to be installed"
+      end
+    end
 
     # Remove the last three lines of help text.
     packages.slice!(-4, 4)
