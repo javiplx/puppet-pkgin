@@ -49,10 +49,10 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def query
     packages = parse_pkgsearch_line
 
-    if packages.length == 1
+    if not packages
       if @resource[:ensure] == :absent
         notice "declared as absent but unavailable #{@resource.file}:#{resource.line}"
-        return {}
+        return false
       else
         @resource.fail "No candidate to be installed"
       end
