@@ -89,7 +89,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
     return nil if not package
     notice  "Upgrading #{package[:name]} to #{package[:version]}"
-    pkgin("-y", :install, package[:name])
+    pkgin("-y", :install, package[:name]) unless resource.noop
   end
 
   def update
