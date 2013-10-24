@@ -47,22 +47,30 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # or false is returnedm, but in any case install/update is executed depending
   # on the value of the initial ensure attribute
   def query
-    packages = pkgin(:search, resource[:name]).split("\n")
+    packages = parse_pkgsearch_line
 
-    if packages.length == 1
+    if not packages
       if @resource[:ensure] == :absent
         notice "declared as absent but unavailable #{@resource.file}:#{resource.line}"
-        return {}
+        return false
       else
         @resource.fail "No candidate to be installed"
       end
     end
 
+    packages.first.merge( :ensure => :absent )
+  end
+
+  def parse_pkgsearch_line
+    packages = pkgin(:search, resource[:name]).split("\n")
+
+    return nil if packages.length == 1
+
     # Remove the last three lines of help text.
     packages.slice!(-4, 4)
 
     pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
-    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) }.merge( :ensure => :absent )
+    pkglist.select{ |package| resource[:name] == package[:name] }
   end
 
   def install
@@ -78,10 +86,10 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # if nil/false is returned, latest is called again, but in neither
   #    case update is automatically invoked
   def latest
-    package = self.query
+    package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
     return nil if not package
     notice  "Upgrading #{package[:name]} to #{package[:version]}"
-    pkgin("-y", :install, package[:name])
+    pkgin("-y", :install, package[:name]) unless resource.noop
   end
 
   def update
