@@ -58,7 +58,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
       end
     end
 
-    packages.detect.merge( :ensure => :absent )
+    packages.first.merge( :ensure => :absent )
   end
 
   def parse_pkgsearch_line
@@ -70,7 +70,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     packages.slice!(-4, 4)
 
     pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
-    pkglist.search{ |package| resource[:name] == package[:name] }
+    pkglist.select{ |package| resource[:name] == package[:name] }
   end
 
   def install
