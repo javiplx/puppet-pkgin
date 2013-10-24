@@ -115,12 +115,8 @@ SEARCH
 
       it "returns a hash with the upgraded package" do
         provider_class.stub(:pkgin).with(:search, "vim").and_return(pkgin_search_output)
-        provider_class.stub(:pkgin).with("-y", :install, "vim")
-        subject.latest.should == { :name => "vim" ,
-                                   :ensure => :present ,
-                                   :status => "<" ,
-                                   :version => "7.3" ,
-                                   :provider => :pkgin }
+        provider_class.stub(:pkgin).with("-y", :install, "vim").once()
+        subject.latest.should == :latest
       end
     end
 
