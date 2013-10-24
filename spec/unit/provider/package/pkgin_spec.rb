@@ -80,12 +80,10 @@ describe provider_class do
         "vim-7.2.446 <        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns a hash stating the package is present" do
-        provider_class.stub(:pkgin).with("-y", :install, "vim")
+      it "returns latest as the current state" do
+        provider_class.stub(:pkgin).with("-y", :install, "vim").once()
         result = subject.latest
-        result[:ensure].should == :present
-        result[:name].should == "vim"
-        result[:provider].should == :pkgin
+        result.should == :latest
       end
     end
 
