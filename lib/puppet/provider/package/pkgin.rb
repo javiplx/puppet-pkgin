@@ -86,7 +86,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # if nil/false is returned, latest is called again, but in neither
   #    case update is automatically invoked
   def latest
-    package = self.query
+    package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
     return nil if not package
     notice  "Upgrading #{package[:name]} to #{package[:version]}"
     pkgin("-y", :install, package[:name])
