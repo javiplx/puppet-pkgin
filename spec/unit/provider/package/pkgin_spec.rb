@@ -97,20 +97,6 @@ describe provider_class do
       end
     end
 
-    context "when the package is not installed" do
-      let(:pkgin_search_output) do
-        "vim-7.2.446          Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
-      end
-
-      it "returns a hash stating the package is present" do
-        provider_class.stub(:pkgin).with("-y", :install, "vim")
-        result = subject.latest
-        result[:ensure].should == :present
-        result[:name].should == "vim"
-        result[:provider].should == :pkgin
-      end
-    end
-
     context "when multiple candidates do exists" do
       let(:pkgin_search_output) do
         <<-SEARCH
