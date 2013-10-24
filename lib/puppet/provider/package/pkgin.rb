@@ -11,26 +11,16 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   defaultfor :solarisflavour => :smartos
 
-  def self.parse_pkgin_line(package, force_status=nil)
+  def self.parse_pkgin_line(package)
 
     # e.g.
     #   vim-7.2.446 =        Vim editor (vi clone) without GUI
     match, name, version, status = *package.match(/(\S+)-(\S+)(?: (=|>|<))?\s+.+$/)
     if match
-      ensure_status = if force_status
-        force_status
-      elsif status
-        :present
-      else
-        :absent
-      end
-
       {
         :name     => name,
-        :ensure   => ensure_status,
         :status   => status,
-        :version  => version,
-        :provider => :pkgin
+        :version  => version
       }
     end
   end
@@ -47,7 +37,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # under 'apply', it is actually called from within the parent prefetch
   def self.instances
     pkgin(:list).split("\n").map do |package|
-      new(parse_pkgin_line(package, :present))
+      new(parse_pkgin_line(package).merge(:ensure => :present))
     end
   end
 
@@ -59,11 +49,20 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def query
     packages = pkgin(:search, resource[:name]).split("\n")
 
+    if packages.length == 1
+      if @resource[:ensure] == :absent
+        notice "declared as absent but unavailable #{@resource.file}:#{resource.line}"
+        return {}
+      else
+        @resource.fail "No candidate to be installed"
+      end
+    end
+
     # Remove the last three lines of help text.
     packages.slice!(-4, 4)
 
     pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
-    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) } if pkglist
+    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) }.merge( :ensure => :absent )
   end
 
   def install
@@ -83,7 +82,10 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     return nil if not package
     notice  "Upgrading #{package[:name]} to #{package[:version]}"
     pkgin("-y", :install, package[:name])
-    package.update( { :ensure => :present } )
+  end
+
+  def update
+    install
   end
 
 end
