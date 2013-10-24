@@ -47,7 +47,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # or false is returnedm, but in any case install/update is executed depending
   # on the value of the initial ensure attribute
   def query
-    packages = pkgin(:search, resource[:name]).split("\n")
+    packages = parse_pkgsearch_line
 
     if packages.length == 1
       if @resource[:ensure] == :absent
@@ -58,11 +58,19 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
       end
     end
 
+    packages.detect.merge( :ensure => :absent )
+  end
+
+  def parse_pkgsearch_line
+    packages = pkgin(:search, resource[:name]).split("\n")
+
+    return nil if packages.length == 1
+
     # Remove the last three lines of help text.
     packages.slice!(-4, 4)
 
     pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
-    pkglist.detect{ |package| resource[:name] == package[:name] and [ '<' , nil ].index( package[:status] ) }.merge( :ensure => :absent )
+    pkglist.search{ |package| resource[:name] == package[:name] }
   end
 
   def install
