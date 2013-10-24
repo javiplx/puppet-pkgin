@@ -158,8 +158,7 @@ SEARCH
       it "extracts the name and status" do
         hash = provider_class.parse_pkgin_line(package)
         hash[:name].should == "vim"
-        hash[:ensure].should == :present
-        hash[:provider].should == :pkgin
+        hash[:status].should == "="
       end
     end
 
@@ -169,8 +168,7 @@ SEARCH
       it "extracts the name and status" do
         hash = provider_class.parse_pkgin_line(package)
         hash[:name].should == "ruby18-puppet"
-        hash[:ensure].should == :present
-        hash[:provider].should == :pkgin
+        hash[:status].should == "="
       end
     end
 
@@ -180,15 +178,13 @@ SEARCH
       it "extracts the name and status" do
         hash = provider_class.parse_pkgin_line(package)
         hash[:name].should == "vim"
-        hash[:ensure].should == :absent
-        hash[:provider].should == :pkgin
+        hash[:status].should == nil
       end
 
       it "extracts the name and an overridden status" do
-        hash = provider_class.parse_pkgin_line(package, :present)
+        hash = provider_class.parse_pkgin_line(package)
         hash[:name].should == "vim"
-        hash[:ensure].should == :present
-        hash[:provider].should == :pkgin
+        hash[:status].should == nil
       end
     end
 
