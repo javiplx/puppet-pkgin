@@ -30,11 +30,12 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     # it is unclear if we should call the parent method here. The work done
     #    there seems redundant, at least if pkgin is default provider.
     super
-    pkgin("-yf", :update)
+    pkgin("-y", :update)
   end
 
   # called in every run to collect packages present in the system
   # under 'apply', it is actually called from within the parent prefetch
+
   def self.instances
     pkgin(:list).split("\n").map do |package|
       new(parse_pkgin_line(package).merge(:ensure => :present))
