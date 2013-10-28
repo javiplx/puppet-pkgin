@@ -5,62 +5,78 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   commands :pkgin => "pkgin"
 
-  has_feature :installable, :uninstallable, :upgradeable
-
+  defaultfor :operatingsystem => :dragonfly
   defaultfor :solarisflavour => :smartos
 
-  def self.parse(package, force_status=nil)
+  has_feature :installable, :uninstallable, :upgradeable
+
+  def self.parse_pkgin_line(package)
 
     # e.g.
     #   vim-7.2.446 =        Vim editor (vi clone) without GUI
     match, name, version, status = *package.match(/(\S+)-(\S+)(?: (=|>|<))?\s+.+$/)
     if match
-      ensure_status = if force_status
-        force_status
-      elsif status
-        :present
-      else
-        :absent
-      end
-
       {
         :name     => name,
         :version  => version,
-        :ensure   => ensure_status,
-        :status   => status,
-        :provider => :pkgin
+        :status   => status
       }
-    else
-      err "Something didn't match the expected regexp at #{package}"
     end
   end
 
+  # packages : list of packages for the current provider declared on manifest
   def self.prefetch(packages)
+    # it is unclear if we should call the parent method here. The work done
+    #    there seems redundant, at least if pkgin is default provider.
     super
-    # -f seems required when repositories.conf changes
-    pkgin(:update)
+    packages.each do |name,pkg|
+      if pkg.provider.get(:ensure) == :present and pkg.should(:ensure) == :latest
+        # without this hack, latest is invoked up to two times, but no install/update comes after that
+        # it also mangles the messages shown for present->latest transition
+        pkg.provider.set( { :ensure => :latest } )
+      end
+    end
+    pkgin("-y", :update)
   end
 
+  # called in every run to collect packages present in the system
+  # under 'apply', it is actually called from within the parent prefetch
   def self.instances
     pkgin(:list).split("\n").map do |package|
-      new(parse(package, :present))
+      new(parse_pkgin_line(package).merge(:ensure => :present))
     end
   end
 
+  # called for every resource in manifest not present in instances
+  # it is not defined wether this should query local or remote packages
+  # returned hash is stored on @property_hash, or '{:ensure=>:absent}' if nil
+  # or false is returnedm, but in any case install/update is executed depending
+  # on the value of the initial ensure attribute
   def query
+    packages = parse_pkgsearch_line
+
+    if not packages
+      if @resource[:ensure] == :absent
+        notice "declared as absent but unavailable #{@resource.file}:#{resource.line}"
+        return false
+      else
+        @resource.fail "No candidate to be installed"
+      end
+    end
+
+    packages.first.merge( :ensure => :absent )
+  end
+
+  def parse_pkgsearch_line
     packages = pkgin(:search, resource[:name]).split("\n")
 
-    matching_package = []
-    packages.select{ |pkg| pkg.start_with?("#{resource[:name]}") }.each do |package|
-      properties = self.class.parse(package)
-      matching_package << properties if properties && resource[:name] == properties[:name]
-    end
+    return nil if packages.length == 1
 
-    if matching_package.length > 1
-      warning( "Multiple instances matching #{resource[:name]} : #{matching_package}" )
-    end
+    # Remove the last three lines of help text.
+    packages.slice!(-4, 4)
 
-    matching_package.first
+    pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
+    pkglist.select{ |package| resource[:name] == package[:name] }
   end
 
   def install
@@ -71,18 +87,25 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     pkgin("-y", :remove, resource[:name])
   end
 
+  # latest seems to be invoked only when the resource is on instances
+  #    and ensure is set to latest
+  # if nil/false is returned, latest is called again, but in neither
+  #    case update is automatically invoked
   def latest
-    package = self.query
+    package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
+    @property_hash[:ensure] = :present
     if not package
-        return true
+      set( { :abort => true } )
+      return nil
     end
-    if package[:status] == '<'
-      notice  "Upgrading #{package[:name]} to #{package[:version]}"
-      pkgin("-y", :install, package[:name])
-    else
-      true
+    notice  "Upgrading #{package[:name]} to #{package[:version]}"
+    return package[:version]
+  end
+
+  def update
+    unless @property_hash[:abort]
+      pkgin("-y", :install, resource[:name])
     end
   end
 
 end
-
