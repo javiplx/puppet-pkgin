@@ -20,7 +20,7 @@ describe provider_class do
     before { resource[:ensure] = :absent }
 
     it "uses pkgin install to install" do
-      subject.should_receive(:pkgin).with("-y", :install, "vim")
+      subject.should_receive(:pkgin).with("-y", :install, "vim").once()
       subject.install
     end
   end
@@ -29,7 +29,7 @@ describe provider_class do
     before { resource[:ensure] = :present }
 
     it "uses pkgin remove to uninstall" do
-      subject.should_receive(:pkgin).with("-y", :remove, "vim")
+      subject.should_receive(:pkgin).with("-y", :remove, "vim").once()
       subject.uninstall
     end
   end
@@ -83,7 +83,7 @@ describe provider_class do
       it "returns latest as the current state" do
         provider_class.stub(:pkgin).with("-y", :install, "vim").once()
         result = subject.latest
-        result.should == :latest
+        result.should == "7.2.446"
       end
     end
 
@@ -116,7 +116,7 @@ SEARCH
       it "returns a hash with the upgraded package" do
         provider_class.stub(:pkgin).with(:search, "vim").and_return(pkgin_search_output)
         provider_class.stub(:pkgin).with("-y", :install, "vim").once()
-        subject.latest.should == :latest
+        subject.latest.should == "7.3"
       end
     end
 
