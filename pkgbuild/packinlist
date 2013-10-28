@@ -1,4 +1,4 @@
-@name is-puppet
+@name is-puppet-1.0
 @display is-puppet
 
 @pkgdep ruby19-puppet
