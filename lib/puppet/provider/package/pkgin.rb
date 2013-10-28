@@ -104,7 +104,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   def update
     unless @property_hash[:abort]
-      install
+      pkgin("-y", :install, resource[:name])
     end
   end
 
