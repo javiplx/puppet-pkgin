@@ -8,7 +8,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   defaultfor :operatingsystem => :dragonfly
   defaultfor :solarisflavour => :smartos
 
-  has_feature :installable, :uninstallable, :upgradeable
+  has_feature :installable, :uninstallable, :upgradeable, :versionable
 
   def self.parse_pkgin_line(package)
 
@@ -18,7 +18,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     if match
       {
         :name     => name,
-        :version  => version,
+        :ensure   => version,
         :status   => status
       }
     end
