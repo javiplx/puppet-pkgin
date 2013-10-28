@@ -93,6 +93,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   #    case update is automatically invoked
   def latest
     package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
+    @property_hash[:ensure] = :present
     if not package
       set( { :abort => true } )
       return nil
