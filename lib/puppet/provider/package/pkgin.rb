@@ -105,6 +105,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def update
     unless @property_hash[:abort]
       pkgin("-y", :install, resource[:name])
+    else
+      notice "#{resource[:name]} is up to date, skipping"
     end
   end
 
