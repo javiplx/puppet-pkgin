@@ -43,7 +43,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # under 'apply', it is actually called from within the parent prefetch
   def self.instances
     pkgin(:list).split("\n").map do |package|
-      new(parse_pkgin_line(package).merge(:ensure => :present))
+      new(parse_pkgin_line(package))
     end
   end
 
