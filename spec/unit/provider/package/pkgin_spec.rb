@@ -54,9 +54,9 @@ describe provider_class do
     it "populates each provider with an installed package" do
       zlib_provider, zziplib_provider = provider_class.instances
       zlib_provider.get(:name).should == "zlib"
-      zlib_provider.get(:ensure).should == :present
+      zlib_provider.get(:ensure).should == "1.2.3"
       zziplib_provider.get(:name).should == "zziplib"
-      zziplib_provider.get(:ensure).should == :present
+      zziplib_provider.get(:ensure).should == "0.13.59"
     end
   end
 
