@@ -80,25 +80,15 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     pkgin("-y", :remove, resource[:name])
   end
 
-  # latest seems to be invoked only when the resource is on instances
-  #    and ensure is set to latest
-  # if nil/false is returned, latest is called again, but in neither
-  #    case update is automatically invoked
   def latest
     package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
-    @property_hash[:ensure] = :present
-    if not package
-      set( { :abort => true } )
-      return nil
-    end
+    return properties[:ensure] if not package
     notice  "Upgrading #{package[:name]} to #{package[:version]}"
     return package[:version]
   end
 
   def update
-    unless @property_hash[:abort]
-      pkgin("-y", :install, resource[:name])
-    end
+    pkgin("-y", :install, resource[:name])
   end
 
 end
