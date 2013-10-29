@@ -3,7 +3,7 @@ require "spec_helper"
 provider_class = Puppet::Type.type(:package).provider(:pkgin)
 
 describe provider_class do
-  let(:resource) { Puppet::Type.type(:package).new(:name => "vim") }
+  let(:resource) { Puppet::Type.type(:package).new(:name => "vim" , :ensure => "7.2.446") }
   subject        { provider_class.new(resource) }
 
   describe "Puppet provider interface" do
@@ -17,17 +17,26 @@ describe provider_class do
   end
 
   describe "#install" do
+
+   describe "a package not installed" do
     before { resource[:ensure] = :absent }
 
     it "uses pkgin install to install" do
       subject.should_receive(:pkgin).with("-y", :install, "vim").once()
       subject.install
     end
+   end
+
+   describe "a package with a fixed version" do
+    it "uses pkgin install to install a fixed version" do
+      subject.should_receive(:pkgin).with("-y", :install, "vim-7.2.446").once()
+      subject.install
+    end
+   end
+
   end
 
   describe "#uninstall" do
-    before { resource[:ensure] = :present }
-
     it "uses pkgin remove to uninstall" do
       subject.should_receive(:pkgin).with("-y", :remove, "vim").once()
       subject.uninstall
