@@ -70,8 +70,8 @@ describe provider_class do
         "vim-7.2.446 =        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns nil" do
-        subject.latest.should be_nil
+      it "returns installed version" do
+        subject.latest.should == "7.2.446"
       end
     end
 
@@ -80,10 +80,8 @@ describe provider_class do
         "vim-7.2.446 <        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns latest as the current state" do
-        provider_class.stub(:pkgin).with("-y", :install, "vim").once()
-        result = subject.latest
-        result.should == "7.2.446"
+      it "returns the version to be installed" do
+        subject.latest.should == "7.2.446"
       end
     end
 
@@ -92,8 +90,8 @@ describe provider_class do
         "vim-7.2.446 >        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns nil" do
-        subject.latest.should be_nil
+      it "returns current version" do
+        subject.latest.should == "7.2.446"
       end
     end
 
@@ -113,9 +111,8 @@ vim-share-7.3 <      Data files for the vim editor (vi clone)
 SEARCH
       end
 
-      it "returns a hash with the upgraded package" do
+      it "returns the newest available version" do
         provider_class.stub(:pkgin).with(:search, "vim").and_return(pkgin_search_output)
-        provider_class.stub(:pkgin).with("-y", :install, "vim").once()
         subject.latest.should == "7.3"
       end
     end
