@@ -57,7 +57,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
       end
     end
 
-    packages.first.merge( :ensure => :absent )
+    packages.first
   end
 
   def parse_pkgsearch_line
