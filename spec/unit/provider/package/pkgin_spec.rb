@@ -132,7 +132,7 @@ SEARCH
       end
 
       it "returns nil" do
-        subject.latest.should be_nil
+        expect { subject.latest }.to raise_error(Puppet::Error, "No candidate to be installed")
       end
     end
   end
