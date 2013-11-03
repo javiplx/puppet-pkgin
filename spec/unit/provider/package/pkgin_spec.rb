@@ -3,7 +3,7 @@ require "spec_helper"
 provider_class = Puppet::Type.type(:package).provider(:pkgin)
 
 describe provider_class do
-  let(:resource) { Puppet::Type.type(:package).new(:name => "vim") }
+  let(:resource) { Puppet::Type.type(:package).new(:name => "vim" , :ensure => "7.2.446") }
   subject        { provider_class.new(resource) }
 
   describe "Puppet provider interface" do
@@ -17,17 +17,26 @@ describe provider_class do
   end
 
   describe "#install" do
+
+   describe "a package not installed" do
     before { resource[:ensure] = :absent }
 
     it "uses pkgin install to install" do
       subject.should_receive(:pkgin).with("-y", :install, "vim").once()
       subject.install
     end
+   end
+
+   describe "a package with a fixed version" do
+    it "uses pkgin install to install a fixed version" do
+      subject.should_receive(:pkgin).with("-y", :install, "vim-7.2.446").once()
+      subject.install
+    end
+   end
+
   end
 
   describe "#uninstall" do
-    before { resource[:ensure] = :present }
-
     it "uses pkgin remove to uninstall" do
       subject.should_receive(:pkgin).with("-y", :remove, "vim").once()
       subject.uninstall
@@ -54,9 +63,9 @@ describe provider_class do
     it "populates each provider with an installed package" do
       zlib_provider, zziplib_provider = provider_class.instances
       zlib_provider.get(:name).should == "zlib"
-      zlib_provider.get(:ensure).should == :present
+      zlib_provider.get(:ensure).should == "1.2.3"
       zziplib_provider.get(:name).should == "zziplib"
-      zziplib_provider.get(:ensure).should == :present
+      zziplib_provider.get(:ensure).should == "0.13.59"
     end
   end
 
@@ -70,8 +79,8 @@ describe provider_class do
         "vim-7.2.446 =        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns nil" do
-        subject.latest.should be_nil
+      it "returns installed version" do
+        subject.latest.should == "7.2.446"
       end
     end
 
@@ -80,10 +89,8 @@ describe provider_class do
         "vim-7.2.446 <        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns latest as the current state" do
-        provider_class.stub(:pkgin).with("-y", :install, "vim").once()
-        result = subject.latest
-        result.should == "7.2.446"
+      it "returns the version to be installed" do
+        subject.latest.should == "7.2.446"
       end
     end
 
@@ -92,8 +99,8 @@ describe provider_class do
         "vim-7.2.446 >        Vim editor (vi clone) without GUI\nvim-share-7.2.446 =  Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
       end
 
-      it "returns nil" do
-        subject.latest.should be_nil
+      it "returns current version" do
+        subject.latest.should == "7.2.446"
       end
     end
 
@@ -113,9 +120,8 @@ vim-share-7.3 <      Data files for the vim editor (vi clone)
 SEARCH
       end
 
-      it "returns a hash with the upgraded package" do
+      it "returns the newest available version" do
         provider_class.stub(:pkgin).with(:search, "vim").and_return(pkgin_search_output)
-        provider_class.stub(:pkgin).with("-y", :install, "vim").once()
         subject.latest.should == "7.3"
       end
     end
@@ -126,7 +132,7 @@ SEARCH
       end
 
       it "returns nil" do
-        subject.latest.should be_nil
+        expect { subject.latest }.to raise_error(Puppet::Error, "No candidate to be installed")
       end
     end
   end

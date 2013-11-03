@@ -8,7 +8,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   defaultfor :operatingsystem => :dragonfly
   defaultfor :solarisflavour => :smartos
 
-  has_feature :installable, :uninstallable, :upgradeable
+  has_feature :installable, :uninstallable, :upgradeable, :versionable
 
   def self.parse_pkgin_line(package)
 
@@ -18,7 +18,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     if match
       {
         :name     => name,
-        :version  => version,
+        :ensure   => version,
         :status   => status
       }
     end
@@ -29,13 +29,6 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     # it is unclear if we should call the parent method here. The work done
     #    there seems redundant, at least if pkgin is default provider.
     super
-    packages.each do |name,pkg|
-      if pkg.provider.get(:ensure) == :present and pkg.should(:ensure) == :latest
-        # without this hack, latest is invoked up to two times, but no install/update comes after that
-        # it also mangles the messages shown for present->latest transition
-        pkg.provider.set( { :ensure => :latest } )
-      end
-    end
     pkgin("-y", :update)
   end
 
@@ -43,7 +36,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # under 'apply', it is actually called from within the parent prefetch
   def self.instances
     pkgin(:list).split("\n").map do |package|
-      new(parse_pkgin_line(package).merge(:ensure => :present))
+      new(parse_pkgin_line(package))
     end
   end
 
@@ -55,7 +48,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   def query
     packages = parse_pkgsearch_line
 
-    if not packages
+    if not packages or packages.empty?
       if @resource[:ensure] == :absent
         notice "declared as absent but unavailable #{@resource.file}:#{resource.line}"
         return false
@@ -64,7 +57,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
       end
     end
 
-    packages.first.merge( :ensure => :absent )
+    packages.first
   end
 
   def parse_pkgsearch_line
@@ -80,32 +73,26 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   end
 
   def install
-    pkgin("-y", :install, resource[:name])
+    if String === @resource[:ensure]
+      pkgin("-y", :install, "#{resource[:name]}-#{resource[:ensure]}")
+    else
+      pkgin("-y", :install, resource[:name])
+    end
   end
 
   def uninstall
     pkgin("-y", :remove, resource[:name])
   end
 
-  # latest seems to be invoked only when the resource is on instances
-  #    and ensure is set to latest
-  # if nil/false is returned, latest is called again, but in neither
-  #    case update is automatically invoked
   def latest
     package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
-    @property_hash[:ensure] = :present
-    if not package
-      set( { :abort => true } )
-      return nil
-    end
+    return properties[:ensure] if not package
     notice  "Upgrading #{package[:name]} to #{package[:version]}"
-    return package[:version]
+    return package[:ensure]
   end
 
   def update
-    unless @property_hash[:abort]
-      pkgin("-y", :install, resource[:name])
-    end
+    pkgin("-y", :install, resource[:name])
   end
 
 end
