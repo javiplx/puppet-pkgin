@@ -137,12 +137,12 @@ SEARCH
     end
   end
 
-  describe "#parse_pkgin_line" do
+  describe "#parse" do
     context "with an installed package" do
       let(:package) { "vim-7.2.446 =        Vim editor (vi clone) without GUI" }
 
       it "extracts the name and status" do
-        hash = provider_class.parse_pkgin_line(package)
+        hash = provider_class.parse(package)
         hash[:name].should == "vim"
         hash[:status].should == "="
       end
@@ -152,7 +152,7 @@ SEARCH
       let(:package) { "ruby18-puppet-0.25.5nb1 = Configuration management framework written in Ruby" }
 
       it "extracts the name and status" do
-        hash = provider_class.parse_pkgin_line(package)
+        hash = provider_class.parse(package)
         hash[:name].should == "ruby18-puppet"
         hash[:status].should == "="
       end
@@ -162,13 +162,13 @@ SEARCH
       let(:package) { "vim-7.2.446          Vim editor (vi clone) without GUI" }
 
       it "extracts the name and status" do
-        hash = provider_class.parse_pkgin_line(package)
+        hash = provider_class.parse(package)
         hash[:name].should == "vim"
         hash[:status].should == nil
       end
 
       it "extracts the name and an overridden status" do
-        hash = provider_class.parse_pkgin_line(package)
+        hash = provider_class.parse(package)
         hash[:name].should == "vim"
         hash[:status].should == nil
       end
@@ -178,7 +178,7 @@ SEARCH
       let(:package) { "" }
 
       it "returns nil" do
-        provider_class.parse_pkgin_line(package).should be_nil
+        provider_class.parse(package).should be_nil
       end
     end
   end

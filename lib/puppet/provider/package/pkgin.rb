@@ -10,7 +10,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   has_feature :installable, :uninstallable, :upgradeable, :versionable
 
-  def self.parse_pkgin_line(package)
+  def self.parse(package)
 
     # e.g.
     #   vim-7.2.446 =        Vim editor (vi clone) without GUI
@@ -36,7 +36,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
   # under 'apply', it is actually called from within the parent prefetch
   def self.instances
     pkgin(:list).split("\n").map do |package|
-      new(parse_pkgin_line(package))
+      new(parse(package))
     end
   end
 
@@ -68,7 +68,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     # Remove the last three lines of help text.
     packages.slice!(-4, 4)
 
-    pkglist = packages.map{ |line| self.class.parse_pkgin_line(line) }
+    pkglist = packages.map{ |line| self.class.parse(line) }
     pkglist.select{ |package| resource[:name] == package[:name] }
   end
 
