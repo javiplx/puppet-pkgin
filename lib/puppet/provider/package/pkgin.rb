@@ -29,7 +29,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
     # it is unclear if we should call the parent method here. The work done
     #    there seems redundant, at least if pkgin is default provider.
     super
-    pkgin("-y", :update)
+    # Withouth -f, no fresh pkg_summary files are downloaded
+    pkgin("-yf", :update)
   end
 
   # called in every run to collect packages present in the system
