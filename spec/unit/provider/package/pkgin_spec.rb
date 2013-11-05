@@ -3,7 +3,7 @@ require "spec_helper"
 provider_class = Puppet::Type.type(:package).provider(:pkgin)
 
 describe provider_class do
-  let(:resource) { Puppet::Type.type(:package).new(:name => "vim" , :ensure => "7.2.446") }
+  let(:resource) { Puppet::Type.type(:package).new(:name => "vim" , :ensure => "7.2.446", :provider => :pkgin) }
   subject        { provider_class.new(resource) }
 
   describe "Puppet provider interface" do
