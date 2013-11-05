@@ -126,6 +126,19 @@ SEARCH
       end
     end
 
+    context "when package is not currently installed" do
+      before { resource[:ensure] = :absent }
+      let(:pkgin_search_output) do
+        "vim-7.2.446          Vim editor (vi clone) without GUI\nvim-share-7.2.446    Data files for the vim editor (vi clone)\n\n=: package is installed and up-to-date\n<: package is installed but newer version is available\n>: installed package has a greater version than available package\n"
+      end
+
+      it "uses pkgin install to install" do
+        subject.should_receive(:pkgin).with("-y", :install, "vim").once()
+        # ToDo : forced failure until proper test is written or bug actually fixed
+        subject.install.should == "7.2.446"
+      end
+     end
+
     context "when the package cannot be found" do
       let(:pkgin_search_output) do
         "No results found for is-puppet"
