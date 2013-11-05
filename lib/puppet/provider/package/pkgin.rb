@@ -23,7 +23,8 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   def self.prefetch(packages)
     super
-    pkgin("-y", :update)
+    # Withouth -f, no fresh pkg_summary files are downloaded
+    pkgin("-yf", :update)
   end
 
   def self.instances
