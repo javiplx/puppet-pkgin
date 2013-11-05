@@ -4,7 +4,8 @@ provider_class = Puppet::Type.type(:package).provider(:pkgin)
 
 describe provider_class do
   before do
-    @resource = Puppet::Type.type(:package).new(:name => "vim" , :ensure => "7.2.446")
+    @resource = stub 'resource'
+    @resource.stub(:[]).with(:name).and_return('vim')
     @subject  = provider_class.new(@resource)
   end
 
