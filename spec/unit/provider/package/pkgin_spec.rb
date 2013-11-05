@@ -6,6 +6,7 @@ describe provider_class do
   before do
     @resource = stub 'resource'
     @resource.stub(:[]).with(:name).and_return('vim')
+    @resource.stub(:[]).with(:ensure).and_return('7.2.446')
     @subject  = provider_class.new(@resource)
   end
 
@@ -22,7 +23,9 @@ describe provider_class do
   describe "#install" do
 
    describe "a package not installed" do
-    before { @resource[:ensure] = :absent }
+    before do
+     @resource.stub(:[]).with(:ensure).and_return(:absent)
+    end
 
     it "uses pkgin install to install" do
       @subject.should_receive(:pkgin).with("-y", :install, "vim").once()
