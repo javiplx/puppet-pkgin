@@ -3,6 +3,8 @@
 
 @pkgdep ruby19-puppet
 
+@pkgdep ruby19-facter>=1.7.3
+
 @owner puppet
 @group puppet
 @mode 544
