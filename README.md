@@ -1,6 +1,8 @@
 ## PDI aditions
 
-Besides some actual patching to pkgin module itself, there is a payload directory with some other modules. This is due to the solaris module dissapeared from puppetforge and to the fact that we have decided to create a single package with all the SmartOS related modules and this is the easiest way to to it.
+*NOTE :* The bundled providers are modified to use facter 1.7.x, with improved detection of SmartOS
+
+Besides some actual patching to pkgin module itself, there is a payload directory with some other modules. This was because the solaris module dissapeared from puppetforge and to the fact that we have decided to create a single package with all the SmartOS related modules and this is the easiest way to to it.
 To actually build the package, you must clone on a directory named pkgin, and from the same level where this directory lives run
 
     pkg_create \
@@ -9,7 +11,7 @@ To actually build the package, you must clone on a directory named pkgin, and fr
         -I /etc/puppet/modules is-puppet.tgz
 
 
-Puppet pkgin Module [![Build Status](https://secure.travis-ci.org/mudge/puppet-pkgin.png?branch=master)](http://travis-ci.org/mudge/puppet-pkgin)
+Puppet pkgin Module
 ===================
 
 This is a Puppet module to install and uninstall packages using [`pkgin`][0], a
