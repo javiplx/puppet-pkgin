@@ -1,6 +1,6 @@
 ## PDI aditions
 
-*NOTE :* The bundled providers are modified to use facter 1.7.x, with improved detection of SmartOS
+**NOTE :** The bundled providers are modified to use facter 1.7.x, with improved detection of SmartOS
 
 Besides some actual patching to pkgin module itself, there is a payload directory with some other modules. This was because the solaris module dissapeared from puppetforge and to the fact that we have decided to create a single package with all the SmartOS related modules and this is the easiest way to to it.
 To actually build the package, you must clone on a directory named pkgin, and from the same level where this directory lives run
