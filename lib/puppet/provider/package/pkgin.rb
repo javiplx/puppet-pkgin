@@ -5,8 +5,7 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   commands :pkgin => "pkgin"
 
-  defaultfor :operatingsystem => :dragonfly
-  defaultfor :solarisflavour => :smartos
+  defaultfor :operatingsystem => [:dragonfly, :smartos],
 
   has_feature :installable, :uninstallable, :upgradeable, :versionable
 

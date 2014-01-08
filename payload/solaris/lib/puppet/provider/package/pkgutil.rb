@@ -7,7 +7,7 @@ Puppet::Type.type(:package).provide :pkgutil, :parent => :sun, :source => :sun d
     pkgutil_bin = "/opt/csw/bin/pkgutil"
   end
 
-  confine :operatingsystem => :solaris
+  confine :osfamily => :solaris
 
   commands :pkguti => pkgutil_bin
 
