@@ -3,6 +3,8 @@
 
 @pkgdep ruby19-puppet
 
+@pkgcfl puppet-pkgin
+
 @owner puppet
 @group puppet
 @mode 544
