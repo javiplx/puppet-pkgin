@@ -1,9 +1,8 @@
+@pkgcfl puppet-pkgin
 @name puppet-pkgin-2012Q2-1.2
 @display puppet-pkgin-2012Q2
 
 @pkgdep ruby19-puppet
-
-@pkgcfl puppet-pkgin
 
 @owner puppet
 @group puppet
