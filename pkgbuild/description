@@ -1,4 +1,1 @@
 Improved puppet package provider for pkgin, intended to coexist with the provider bundled on puppet 3.x series."
-
-Also includes SMF provider, currently on puppet core and not available as
-independent download.
