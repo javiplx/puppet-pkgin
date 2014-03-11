@@ -1,4 +1,4 @@
-@name puppet-pkgin-2.0.0
+@name puppet-pkgin-2.0
 @display puppet-pkgin
 
 @pkgdep ruby193-base
