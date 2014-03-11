@@ -2,6 +2,7 @@
 @display puppet-pkgin3x
 
 @pkgcfl puppet-pkgin
+@pkgcfl puppet-pkgin-2012Q2
 
 @pkgdep ruby193-base
 @pkgdep ruby193-puppet>=3.1.1
