@@ -2,4 +2,4 @@ OPSYS=SunOS
 OS_VERSION=5.11
 MACHINE_ARCH=x86_64
 PKGTOOLS_VERSION=20091115
-PKGPATH=sysutils/puppet-pkgin
+PKGPATH=sysutils/puppet-pkgin3x
