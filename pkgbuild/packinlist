@@ -11,7 +11,7 @@
 
 @cwd .
 @pkgdir pkgin/lib/puppet/provider
-pkgin/lib/puppet/provider/package/pkgin.rb
+pkgin/lib/puppet/provider/package/pkgin3x.rb
 
 @pkgdir pkgin/lib/puppet/type
 pkgin/lib/puppet/type/pkgsrcrepo.rb
