@@ -1,7 +1,7 @@
 @name puppet-pkgin3x-2.0
 @display puppet-pkgin3x
 
-@conflicts puppet-pkgin
+@pkgcfl puppet-pkgin
 
 @pkgdep ruby193-base
 @pkgdep ruby193-puppet>=3.1.1
