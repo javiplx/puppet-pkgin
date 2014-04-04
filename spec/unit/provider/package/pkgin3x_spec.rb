@@ -91,7 +91,7 @@ describe provider_class do
       end
 
       it "returns the version to be installed" do
-        subject.stub(:properties).and_return( {:ensure=>"7.2.446"} )
+        subject.stub(:properties).and_return( {:ensure=>"7.2.447"} )
         subject.latest.should == "7.2.447"
       end
     end
