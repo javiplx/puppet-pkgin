@@ -86,12 +86,12 @@ Puppet::Type.type(:package).provide :pkgin, :parent => Puppet::Provider::Package
 
   def latest
     package = parse_pkgsearch_line.detect{ |package| package[:status] == '<' }
-    return properties[:ensure] if not package
-    return package[:ensure]
+    @property_hash[:ensure] = package[:ensure] if package
+    return properties[:ensure]
   end
 
   def update
-    pkgin("-y", :install, resource[:name])
+    pkgin("-y", :install, "#{properties[:name]}-#{properties[:ensure]}")
   end
 
 end
