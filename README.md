@@ -1,3 +1,4 @@
+
 ## PDI aditions
 
 Besides some actual patching to pkgin module itself, there is a payload directory with some other modules. This is due to the solaris module dissapeared from puppetforge and to the fact that we have decided to create a single package with all the SmartOS related modules and this is the easiest way to to it.
